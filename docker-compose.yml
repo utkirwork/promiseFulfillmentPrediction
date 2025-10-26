@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: promise_fulfillment_db
+    environment:
+      POSTGRES_USER: prom_user
+      POSTGRES_PASSWORD: prom_pass
+      POSTGRES_DB: promise_fulfillment
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: promise_fulfillment_jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - CHOWN_HOME=yes
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
